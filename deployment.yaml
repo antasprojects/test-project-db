@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: rangers-db
+  name: rangers-db
+  namespace: default
+spec:
+  replicas: 1
+  minReadySeconds: 45
+  selector:
+    matchLabels:
+      app: rangers-db
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: rangers-db
+    spec:
+      containers:
+      - image: proasacio/rangers-db:0.0.1.RELEASE
+        imagePullPolicy: IfNotPresent
+        name: rangers-db
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels: 
+    app: rangers-db
+  name: rangers-db
+  namespace: default
+spec:
+  ports:
+  - port: 8100 
+    protocol: TCP
+    targetPort: 8100 
+  selector:
+    app: rangers-db
+  sessionAffinity: None 
+  type: NodePort
